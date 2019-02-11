@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)https://www.cnblogs.com/qianguyihao/p/4748313.html -->
+<html lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="origin">
+    <title>Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园</title>
+<meta property="og:description" content="【声明】 欢迎转载，但请保留文章原始出处→_→ 生命壹号：http://www.cnblogs.com/smyhvae/ 文章来源：http://www.cnblogs.com/smyhvae/p/4">
+    <link type="text/css" rel="stylesheet" href="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/bundle-darkgreentrip.css">
+<link type="text/css" rel="stylesheet" href="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/188761.css">
+<link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/bundle-darkgreentrip-mobile.css">
+    <link title="RSS" type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/qianguyihao/rss">
+    <link title="RSD" type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/qianguyihao/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/qianguyihao/wlwmanifest.xml">
+    <script src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/amp4ads-host-v0.js.下载"></script><script src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/osd.js.下载"></script><script src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/pubads_impl_rendering_301.js.下载"></script><script async="" src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/analytics.js.下载"></script><script src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/jquery-2.2.0.min.js.下载"></script>
+    <script>var currentBlogId=188761;var currentBlogApp='qianguyihao',cb_enable_mathjax=false;var isLogined=false;</script>
+    <script src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/blog-common.js.下载" type="text/javascript"></script>
+<link rel="preload" href="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/f(1).txt" as="script"><script type="text/javascript" src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/f(1).txt"></script><script src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/pubads_impl_301.js.下载" async=""></script><link rel="prefetch" href="https://tpc.googlesyndication.com/safeframe/1-0-31/html/container.html"></head>
+<body>
+<a name="top"></a>
+
+
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a id="lnkBlogLogo" href="https://www.cnblogs.com/qianguyihao/"><img id="blogLogo" src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/logo.gif" alt="返回主页"></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="https://www.cnblogs.com/qianguyihao/">千古壹号</a></h1>
+<h2>博客园分享技术，公众号分享代码之外的技能。微信公众号：千古壹号。</h2>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">博客园</a></li>
+<li><a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/qianguyihao/">首页</a></li>
+<li><a id="blog_nav_newpost" class="menu" rel="nofollow" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li><a id="blog_nav_contact" class="menu" rel="nofollow" href="https://msg.cnblogs.com/send/%E5%8D%83%E5%8F%A4%E5%A3%B9%E5%8F%B7">联系</a></li>
+<li><a id="blog_nav_rss" class="menu" href="https://www.cnblogs.com/qianguyihao/rss">订阅</a>
+<!--<a id="blog_nav_rss_image" class="aHeaderXML" href="https://www.cnblogs.com/qianguyihao/rss"><img src="//www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+<li><a id="blog_nav_admin" class="menu" rel="nofollow" href="https://i.cnblogs.com/">管理</a></li>
+</ul>
+		<div class="blogStats">
+			
+			<div id="blog_stats">
+<span id="stats_post_count">随笔 - 157&nbsp; </span>
+<span id="stats_article_count">文章 - 0&nbsp; </span>
+<span id="stats-comment_count">评论 - 605</span>
+</div>
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+        <div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class="post">
+		<h1 class="postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="https://www.cnblogs.com/qianguyihao/p/4748313.html">Java虚拟机详解05----垃圾收集器及GC参数</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body" class="blogpost-body"><p><strong>【声明】</strong>&nbsp;</p>
+<p>欢迎转载，但请保留文章原始出处→_→&nbsp;</p>
+<p>生命壹号：<a href="http://www.cnblogs.com/smyhvae/" target="_blank">http://www.cnblogs.com/smyhvae/</a></p>
+<p>文章来源：http://www.cnblogs.com/smyhvae/p/4748313.html<a href="http://www.cnblogs.com/smyhvae/p/4013535.html"><br></a></p>
+<p><span style="line-height: 1.5;">&nbsp;</span></p>
+<p><strong>本文主要内容：</strong></p>
+<ul>
+<li>堆的回顾</li>
+<li>串行收集器</li>
+<li>并行收集器</li>
+<li>CMS收集器</li>
+
+
+
+
+
+
+
+</ul>
+<p>&nbsp;</p>
+<p><strong>零、堆的回顾：</strong></p>
+<p>新生代中的98%对象都是“朝生夕死”的，所以并不需要按照1:1的比例来划分内存空间，而是<strong>将<span style="color: #0000ff;">内存分为一块比较大的Eden空间和两块较小的Survivor空间</span></strong>，每次使用Eden和其中一块Survivor。当回收时，将Eden和Survivor中还存活着的对象一次性地复制到另外一块Survivor空间上，最后清理掉Eden和刚才用过的Survivor空间。<span style="color: #0000ff;">HotSpot虚拟机默认Eden和Survivor的大小比例是8:1</span>，也就是说，每次<span style="color: #0000ff;">新生代中可用内存空间</span>为整个新生代容量的90%（80%+10%），只有10%的空间会被浪费。</p>
+<p>当然，98%的对象可回收只是一般场景下的数据，我们没有办法保证每次回收都只有不多于10%的对象存活，当Survivor空间不够用时，需要依赖于老年代进行分配担保，所以大对象直接进入老年代。</p>
+<p>堆的结构如下图所示：</p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211644452694453.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="93ae46da-b4f7-4c3b-851a-97dfb4d68da4" src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/211644459887838.png" alt="93ae46da-b4f7-4c3b-851a-97dfb4d68da4" width="444" height="162" border="0"></a></p>
+<p><strong>垃圾收集器：</strong></p>
+<p>如果说收集算法时内存回收的方法论，那么垃圾收集器就是内存回收的具体实现。</p>
+<p>虽然我们在对各种收集器进行比较，但并非为了挑出一个最好的收集器。因为直到现在位置还没有最好的收集器出现，更加没有万能的收集器，所以<span style="color: #0000ff;"><strong>我们选择的只是对具体应用最合适的收集器</strong></span>。</p>
+<p>&nbsp;</p>
+<p><strong>一、串行收集器：Serial收集器</strong></p>
+<ul>
+<li>最古老，最稳定</li>
+<li>简单而高效</li>
+<li>可能会产生较长的停顿</li>
+<li>-XX:+UseSerialGC</li>
+
+
+
+
+
+
+
+</ul>
+<p><strong>　　　　<span style="color: #0000ff;">新生代、老年代都会使用串行回收</span></strong></p>
+<p>　　　　　　新生代复制算法</p>
+<p>　　　　老年代标记-整理</p>
+<p>总结：<span style="color: #0000ff;"><strong>Serial收集器</strong></span>对于<span style="color: #0000ff;"><strong>运行在Client模式下</strong></span>的虚拟机来说是一个很好的选择。</p>
+<p>这个收集器是一个单线程的收集器，但它的单线程的意义并不仅仅说明它只会使用一个CPU或一条收集线程去完成垃圾收集工作，更重要的是在它进行垃圾收集时，必须暂停其他所有的工作线程，直到它收集结束。收集器的运行过程如下图所示：</p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211644465359938.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="28d89f4c-be3f-4e47-90c5-6bac8399a968" src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/211644476603382.png" alt="28d89f4c-be3f-4e47-90c5-6bac8399a968" width="950" height="449" border="0"></a></p>
+<p>&nbsp;</p>
+<p><strong>二、并行收集器：</strong></p>
+<p><strong>1、ParNew收集器：</strong></p>
+<ul>
+<li>ParNew收集器其实就是Serial收集器新生代的并行版本。</li>
+<li>多线程，需要多核支持。</li>
+<li>-XX:+UseParNewGC</li>
+
+
+
+
+
+
+
+</ul>
+<p><span style="color: #0000ff;"><strong>　　　　新生代并行</strong></span></p>
+<p><span style="color: #0000ff;"><strong>　　　　老年代串行</strong></span></p>
+<ul>
+<li>-XX:ParallelGCThreads 限制线程数量</li>
+
+
+
+
+
+
+
+</ul>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211644484105011.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="fa772027-b69f-426e-bb6b-901a0982ace5" src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/211644489567111.png" alt="fa772027-b69f-426e-bb6b-901a0982ace5" width="870" height="386" border="0"></a></p>
+<p><strong>2、Parallel Scanvenge收集器：</strong></p>
+<ul>
+<li>类似ParNew，但更加关注<span style="color: #0000ff;"><strong>吞吐量</strong></span></li>
+<li>-XX:+UseParallelGC&nbsp; 使用Parallel Scanvenge收集器：<span style="color: #0000ff;"><strong>新生代并行，老年代串行</strong></span></li>
+
+
+
+
+
+
+
+</ul>
+<p><strong>3、Parallel Old收集器：</strong></p>
+<ul>
+<li>Parallel Old收集器是Parallel Scanvenge收集器的老年代版本</li>
+<li>-XX:+UseParallelGC&nbsp; 使用Parallel Old收集器：<span style="color: #0000ff;"><strong>新生代并行，老年代并行</strong></span></li>
+
+
+
+
+
+
+
+</ul>
+<p>如下图所示：</p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211644495039211.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="a1c893fd-461d-42f6-9a90-a8dc43a89526" src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/211644502385070.png" alt="a1c893fd-461d-42f6-9a90-a8dc43a89526" width="825" height="395" border="0"></a></p>
+<p><strong>各种参数设置：</strong></p>
+<ul>
+<li>-XX:MaxGCPauseMills</li>
+
+
+
+
+
+
+
+</ul>
+<p>　　　　最大停顿时间，单位毫秒</p>
+<p>　　　　GC尽力保证回收时间不超过设定值</p>
+<ul>
+<li>-XX:GCTimeRatio</li>
+
+
+
+
+
+
+
+</ul>
+<p>　　　　0-100的取值范围</p>
+<p>　　　　垃圾收集时间占总时间的比</p>
+<p>　　　　默认99，即最大允许1%时间做GC</p>
+<p>注：这两个参数是矛盾的。因为<span style="color: #0000ff;"><strong>停顿时间和吞吐量不可能同时调优</strong></span>。我们一方买希望停顿时间少，另外一方面希望吞吐量高，其实这是矛盾的。因为：在GC的时候，垃圾回收的工作总量是不变的，如果将停顿时间减少，那频率就会提高；既然频率提高了，说明就会频繁的进行GC，那吞吐量就会减少，性能就会降低。</p>
+<p><span style="color: #0000ff;"><strong>吞吐量：CPU用于用户代码的时间/CPU总消耗时间的比值</strong></span>，即=运行用户代码的时间/(运行用户代码时间+垃圾收集时间)。比如，虚拟机总共运行了100分钟，其中垃圾收集花掉1分钟，那吞吐量就是99%。</p>
+<p>注2：以上所有的收集器当中，当执行GC时，都会stop the world，但是下面的CMS收集器却不会这样。</p>
+<p>&nbsp;</p>
+<p><strong>三、CMS收集器：</strong></p>
+<p>CMS收集器（Concurrent Mark Sweep：<span style="color: #0000ff;"><strong>并发标记清除</strong></span>）是一种<span style="color: #0000ff;"><strong>以获取最短回收停顿时间为目标</strong></span>的收集器。适合应用在互联网站或者B/S系统的服务器上，这类应用尤其重视服务器的响应速度，希望系统停顿时间最短。</p>
+<ul>
+<li>Concurrent Mark Sweep 并发标记清除，并发低停顿</li>
+<li>标记-清除算法</li>
+<li>并发阶段会降低吞吐量（因为停顿时间减少了，于是GC的频率会变高）</li>
+<li><span style="color: #0000ff;"><strong>老年代收集器</strong></span>（新生代使用ParNew）</li>
+<li>-XX:+UseConcMarkSweepGC&nbsp;&nbsp; 打开这收集器</li>
+
+
+
+
+
+
+
+</ul>
+<p>注：这里的并发指的是与用户线程一起执行。</p>
+<p>&nbsp;</p>
+<p><strong>2、CMS收集器运行过程：（着重实现了<span style="color: #0000ff;">标记</span>的过程）</strong></p>
+<p>（1）<strong>初始标记</strong></p>
+<p>根可以直接关联到的对象</p>
+<p>速度快</p>
+<p>（2）<strong>并发标记</strong>（和用户线程一起）</p>
+<p>主要标记过程，标记全部对象</p>
+<p>（3）<strong>重新标记</strong></p>
+<p>由于并发标记时，用户线程依然运行，因此在正式清理前，再做修正</p>
+<p>（4）<strong>并发清除</strong>（和用户线程一起）</p>
+<p>基于标记结果，直接清理对象</p>
+<p>整个过程如下图所示：</p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211644507857170.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="8ba55616-9537-4a84-87eb-5c45afcc4939" src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/211644513002027.png" alt="8ba55616-9537-4a84-87eb-5c45afcc4939" width="605" height="312" border="0"></a></p>
+<p>其中，初始标记和重新标记时，需要stop the world。</p>
+<p>整个过程中耗时最长的是并发标记和并发清除，这两个过程都可以和用户线程一起工作。</p>
+<p>打印GC日志举例如下：</p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211644520191115.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="453861ce-5fd8-4d87-b6e3-6799a589e69b" src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/211644525501743.png" alt="453861ce-5fd8-4d87-b6e3-6799a589e69b" width="486" height="458" border="0"></a></p>
+<p><strong>3、CMS收集器特点：</strong></p>
+<p>（1）尽可能降低停顿</p>
+<p>（2）会影响系统整体吞吐量和性能</p>
+<p>比如，在用户线程运行过程中，分一半CPU去做GC，系统性能在GC阶段，反应速度就下降一半</p>
+<p>（3）清理不彻底</p>
+<p>因为在清理阶段，用户线程还在运行，会产生新的垃圾，无法清理</p>
+<p>（4）因为和用户线程一起运行，不能在空间快满时再清理</p>
+<p>-XX:CMSInitiatingOccupancyFraction设置触发GC的阈值</p>
+<p>如果不幸内存预留空间不够，就会引起concurrent mode failure</p>
+<p>我们来看一下concurrent mode failure的日志：</p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211644530196287.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border: 0px;" title="ae662550-f927-4299-a64b-2b1fba3e4c81" src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/211644534729358.png" alt="ae662550-f927-4299-a64b-2b1fba3e4c81" width="837" height="168" border="0"></a></p>
+<p>碰到上图中的情况，我们需要使用串行收集器作为后备。</p>
+<p>&nbsp;</p>
+<p><strong>4、既然标记清除算法会造成内存空间的碎片化，CMS收集器为什么使用标记清除算法而不是使用标记整理算法：</strong></p>
+<p>答案：</p>
+<p>&nbsp;&nbsp;&nbsp; CMS收集器更加关注停顿，它在做GC的时候是和用户线程一起工作的（并发执行），如果使用标记整理算法的话，那么在清理的时候就会去移动可用对象的内存空间，那么应用程序的线程就很有可能找不到应用对象在哪里。</p>
+<p>为了解决碎片的问题，CMS收集器会有一些整理上的参数，接下来就来讲这个。</p>
+<p>&nbsp;</p>
+<p><strong>5、整理时的各种参数：</strong></p>
+<ul>
+<li>-XX:+ UseCMSCompactAtFullCollection&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</li>
+
+
+
+
+
+
+
+</ul>
+<p>Full GC后，进行一次整理。整理过程是独占的，会引起停顿时间变长</p>
+<ul>
+<li>-XX:+CMSFullGCsBeforeCompaction</li>
+
+
+
+
+
+
+
+</ul>
+<p>设置进行几次Full GC后，进行一次碎片整理</p>
+<ul>
+<li>-XX:ParallelCMSThreads</li>
+
+
+
+
+
+
+
+</ul>
+<p>设定CMS的线程数量</p>
+<p>&nbsp;</p>
+<p><strong>四、GC参数的整理：</strong></p>
+<p>-XX:+UseSerialGC：在新生代和老年代使用串行收集器</p>
+<p>-XX:SurvivorRatio：设置eden区大小和survivior区大小的比例</p>
+<p>-XX:NewRatio:新生代和老年代的比</p>
+<p>-XX:+UseParNewGC：在新生代使用并行收集器</p>
+<p>-XX:+UseParallelGC ：新生代使用并行回收收集器</p>
+<p>-XX:+UseParallelOldGC：老年代使用并行回收收集器</p>
+<p>-XX:ParallelGCThreads：设置用于垃圾回收的线程数</p>
+<p>-XX:+UseConcMarkSweepGC：新生代使用并行收集器，老年代使用CMS+串行收集器</p>
+<p>-XX:ParallelCMSThreads：设定CMS的线程数量</p>
+<p>-XX:CMSInitiatingOccupancyFraction：设置CMS收集器在老年代空间被使用多少后触发</p>
+<p>-XX:+UseCMSCompactAtFullCollection：设置CMS收集器在完成垃圾收集后是否要进行一次内存碎片的整理</p>
+<p>-XX:CMSFullGCsBeforeCompaction：设定进行多少次CMS垃圾回收后，进行一次内存压缩</p>
+<p>-XX:+CMSClassUnloadingEnabled：允许对类元数据进行回收</p>
+<p>-XX:CMSInitiatingPermOccupancyFraction：当永久区占用率达到这一百分比时，启动CMS回收</p>
+<p>-XX:UseCMSInitiatingOccupancyOnly：表示只在到达阀值的时候，才进行CMS回收</p>
+<p>&nbsp;</p>
+<p><strong>最后的总结：</strong></p>
+<p><strong>为了减轻GC压力，我们需要注意些什么？</strong></p>
+<ul>
+<li>软件如何设计架构（性能的根本在应用）</li>
+<li>GC参数属于微调（设置不合理会影响性能，产生大的延时）</li>
+<li>堆空间如何管理和分配</li>
+<li>代码如何写</li>
+
+
+
+
+
+
+
+</ul>
+<p>&nbsp;</p>
+<p>参考链接：</p>
+<p><a href="http://www.cnblogs.com/zuoxiaolong/p/jvm8.html" target="_blank">http://www.cnblogs.com/zuoxiaolong/p/jvm8.html</a></p>
+<p>&nbsp;</p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="https://www.cnblogs.com/qianguyihao/category/587723.html" target="_blank">Java</a></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+        <a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(4748313,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+            <a id="green_channel_follow" onclick="follow(&#39;64313984-87f0-e311-8d02-90b11c0b17d6&#39;);" href="javascript:void(0);">关注我</a>
+    <a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a>
+    <a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/icon_weibo_24.png" alt=""></a>
+    <a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+    <div id="author_profile_info" class="author_profile_info">
+            <a href="http://home.cnblogs.com/u/qianguyihao/" target="_blank"><img src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/20151116171645.png" class="author_avatar" alt=""></a>
+        <div id="author_profile_detail" class="author_profile_info">
+            <a href="http://home.cnblogs.com/u/qianguyihao/">千古壹号</a><br>
+            <a href="http://home.cnblogs.com/u/qianguyihao/followees">关注 - 55</a><br>
+            <a href="http://home.cnblogs.com/u/qianguyihao/followers">粉丝 - 1459</a>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div id="author_profile_honor"></div>
+    <div id="author_profile_follow">
+                <a href="javascript:void(0);" onclick="follow(&#39;64313984-87f0-e311-8d02-90b11c0b17d6&#39;);return false;">+加关注</a>
+    </div>
+</div>
+<div id="div_digg">
+    <div class="diggit" onclick="votePost(4748313,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">1</span>
+    </div>
+    <div class="buryit" onclick="votePost(4748313,&#39;Bury&#39;)">
+        <span class="burynum" id="bury_count">0</span>
+    </div>
+    <div class="clear"></div>
+    <div class="diggword" id="digg_tips">
+    </div>
+</div>
+<script type="text/javascript">
+    currentDiggType = 0;
+</script></div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="https://www.cnblogs.com/qianguyihao/p/4744233.html" class="p_n_p_prefix">« </a> 上一篇：<a href="https://www.cnblogs.com/qianguyihao/p/4744233.html" title="发布于2015-08-20 10:46">Java虚拟机详解04----GC算法和种类【重要】</a><br><a href="https://www.cnblogs.com/qianguyihao/p/4758808.html" class="p_n_p_prefix">» </a> 下一篇：<a href="https://www.cnblogs.com/qianguyihao/p/4758808.html" title="发布于2015-08-25 22:04">数据结构Java实现02----线性表与顺序表</a><br></div>
+</div>
+
+
+		</div>
+		<div class="postDesc">posted @ <span id="post-date">2015-08-21 16:51</span> <a href="https://www.cnblogs.com/qianguyihao/">千古壹号</a> 阅读(<span id="post_view_count">3235</span>) 评论(<span id="post_comment_count">0</span>)  <a href="https://i.cnblogs.com/EditPosts.aspx?postid=4748313" rel="nofollow">编辑</a> <a href="https://www.cnblogs.com/qianguyihao/p/4748313.html#" onclick="AddToWz(4748313);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,cb_blogId=188761,cb_entryId=4748313,cb_blogApp=currentBlogApp,cb_blogUserGuid='64313984-87f0-e311-8d02-90b11c0b17d6',cb_entryCreatedDate='2015/8/21 16:51:00';loadViewCount(cb_entryId);var cb_postType=1;var isMarkdown=false;</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="https://www.cnblogs.com/qianguyihao/p/4748313.html#" onclick="return RefreshPage();">刷新页面</a><a href="https://www.cnblogs.com/qianguyihao/p/4748313.html#top">返回顶部</a></div>
+<div id="comment_form_container"><div class="login_tips">注册用户登录后才能发表评论，请 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login(&#39;commentform&#39;);">登录</a> 或 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，<a href="http://www.cnblogs.com/">访问</a>网站首页。</div></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"><a href="http://www.ucancode.com/index.htm" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-工控&#39;)">【推荐】超50万VC++源码: 大型组态工控、电力仿真CAD与GIS源码库！</a><br><a href="https://gitee.com/enterprises?from=bky-2" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-gitee&#39;)">【推荐】专业便捷的企业级代码托管服务 - Gitee 码云</a><br></div>
+<div id="opt_under_post"></div>
+<script async="async" src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/gpt.js.下载"></script>
+<script>
+  var googletag = googletag || {};
+  googletag.cmd = googletag.cmd || [];
+</script>
+<script>
+  googletag.cmd.push(function() {
+        googletag.defineSlot('/1090369/C1', [300, 250], 'div-gpt-ad-1546353474406-0').addService(googletag.pubads());
+        googletag.defineSlot('/1090369/C2', [468, 60], 'div-gpt-ad-1539008685004-0').addService(googletag.pubads());
+        googletag.pubads().enableSingleRequest();
+        googletag.enableServices();
+  });
+</script>
+<div id="cnblogs_c1" class="c_ad_block">
+    <div id="div-gpt-ad-1546353474406-0" style="height:250px; width:300px;" data-google-query-id="CLWi3JLKsuACFdixlgodHy0PYA"><div id="google_ads_iframe_/1090369/C1_0__container__" style="border: 0pt none; display: inline-block; width: 300px; height: 250px;"><iframe frameborder="0" src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/container.html" id="google_ads_iframe_/1090369/C1_0" title="3rd party ad content" name="" scrolling="no" marginwidth="0" marginheight="0" width="300" height="250" data-is-safeframe="true" sandbox="allow-forms allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation" data-google-container-id="1" style="border: 0px; vertical-align: bottom;" data-load-complete="true"></iframe></div></div>
+</div>
+<div id="under_post_news"><div class="itnews c_ad_block"><b>相关博文：</b><br>·  <a href="https://www.cnblogs.com/wangmingshun/p/8586128.html" target="_blank" onclick="clickRecomItmem(8586128,&#39;xkPotJz++hwT6kSiv5rOGLztrPtnwBQ3jeehODQyEZZdXo6NnGXYy9Ivc0rRCnBnBkT5vNWlkdbHt58TnfjUdgy7ZC3C9Lk4iuFiUg8A2+8cB3I9V+qOSJYxmHGBD3b/xUGN+N0hEsDEcdG+AdE=&#39;)">Java虚拟机垃圾收集器</a><br>·  <a href="https://www.cnblogs.com/study-everyday/p/6538788.html" target="_blank" onclick="clickRecomItmem(6538788,&#39;IXARET9KHac8nR8jxesEkLmistQ9+nPIHnx9ZmzoZsS/Doix6n3c+OGVeSPWDayKjCcRx4kBq6bhF3wcX0ZNDtPFYOcLqhck/Zy+ai2YK6CtrVLRkDeU1nMs+bgFT2LksYPmz1me2LSSOCCCeg4=&#39;)">Java虚拟机（二）：Java GC算法 垃圾收集器</a><br>·  <a href="https://www.cnblogs.com/haitaofeiyang/p/7811311.html" target="_blank" onclick="clickRecomItmem(7811311,&#39;cqf3gxaxYMVuKpQ3dUoMXPHZ0A8pmbL06Msxn4VfZKLNmBUtu1JWEE7DtTswXPad2JU2h3h0cWtL1uw9j7yUvUcPi5+SpEamggOGMHxlPp8Uy9TQAb0JQI5YoXkD17pUMlnGGgyP1VGSuRtZ/6E=&#39;)">Java虚拟机9：垃圾收集（GC）-4（垃圾收集器）</a><br>·  <a href="https://www.cnblogs.com/hnlshzx/p/3523855.html" target="_blank" onclick="clickRecomItmem(3523855,&#39;xeNj6lea2QeKMXXUP0K2H9HaFcQJUJcI+pqjZRYp644QvvSNFPuwjJnjrbEbK3QG8uRA1dAHvD9r8d950V953pk+EFDWb+SPML9JOAoZ9lp9zPKSeR0CUqEf1iMwJtPkZmi7sxO/QCcHEm01WvA=&#39;)">深入理解java虚拟机【Java虚拟机垃圾收集器】</a><br>·  <a href="https://www.cnblogs.com/cxxjohnson/p/8625713.html" target="_blank" onclick="clickRecomItmem(8625713,&#39;OZRB/wNcbkeOEa/Tn+pO/txTs+oDRHsWYnyOhYtXfSbp0Q3WWfRT4M2i4cdeo7Z+EkMYBE0tO4qfcE7oI3MKR1RT1BXkDvmS1up74wcd8GMCSlAZ4+NcrPNcv9dn6je03Q9nUt6QI4qxVDQDc9o=&#39;)">Java虚拟机垃圾回收(三) 7种垃圾收集器</a><br></div></div>
+<div id="cnblogs_c2" class="c_ad_block">
+    <div id="div-gpt-ad-1539008685004-0" style="height:60px; width:468px;" data-google-query-id="CNya3JLKsuACFU85lgodOsQA4g"><div id="google_ads_iframe_/1090369/C2_0__container__" style="border: 0pt none;"><iframe id="google_ads_iframe_/1090369/C2_0" title="3rd party ad content" name="google_ads_iframe_/1090369/C2_0" width="468" height="60" scrolling="no" marginwidth="0" marginheight="0" frameborder="0" style="border: 0px; vertical-align: bottom;" data-google-container-id="2" data-load-complete="true" src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/saved_resource.html"></iframe></div></div>
+</div>
+<div id="under_post_kb"><div class="itnews c_ad_block"><b>最新新闻</b>：<br> ·  <a href="https://news.cnblogs.com/n/619083/" target="_blank">QQ20岁：20年版本迭代只做一件事情</a><br> ·  <a href="https://news.cnblogs.com/n/619081/" target="_blank">前Google特斯拉Uber三巨头打造无人驾驶“极光之队”</a><br> ·  <a href="https://news.cnblogs.com/n/619080/" target="_blank">李彦宏：创业18年，始终保持警惕</a><br> ·  <a href="https://news.cnblogs.com/n/619079/" target="_blank">苹果降价短期销量增八成 被指饮鸩止渴伤害品牌</a><br> ·  <a href="https://news.cnblogs.com/n/619078/" target="_blank">被冒充洽谈5G基建业务 中国铁塔连发三声明斥“李鬼”</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+ if(enablePostBottom()) {
+    codeHighlight();
+    fixPostBody();
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverT2();
+    deliverC1();
+    deliverC2();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);  
+}
+</script>
+</div>
+
+    
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"><div id="profile_block">昵称：<a href="https://home.cnblogs.com/u/qianguyihao/">千古壹号</a><br>园龄：<a href="https://home.cnblogs.com/u/qianguyihao/" title="入园时间：2014-06-10">4年8个月</a><br>粉丝：<a href="https://home.cnblogs.com/u/qianguyihao/followers/">1459</a><br>关注：<a href="https://home.cnblogs.com/u/qianguyihao/followees/">55</a><div id="p_b_follow"><a href="javascript:void(0);" onclick="follow(&#39;64313984-87f0-e311-8d02-90b11c0b17d6&#39;)">+加关注</a></div><script>getFollowStatus('64313984-87f0-e311-8d02-90b11c0b17d6')</script></div></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="blog-calendar" style=""><table id="blogCalendar" class="Cal" cellspacing="0" cellpadding="0" title="Calendar">
+	<tbody><tr><td colspan="7"><table class="CalTitle" cellspacing="0">
+		<tbody><tr><td class="CalNextPrev"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2019/01/01&#39;);return false;">&lt;</a></td><td align="center">2019年2月</td><td class="CalNextPrev" align="right"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2019/03/01&#39;);return false;">&gt;</a></td></tr>
+	</tbody></table></td></tr><tr><th class="CalDayHeader" align="center" abbr="日" scope="col">日</th><th class="CalDayHeader" align="center" abbr="一" scope="col">一</th><th class="CalDayHeader" align="center" abbr="二" scope="col">二</th><th class="CalDayHeader" align="center" abbr="三" scope="col">三</th><th class="CalDayHeader" align="center" abbr="四" scope="col">四</th><th class="CalDayHeader" align="center" abbr="五" scope="col">五</th><th class="CalDayHeader" align="center" abbr="六" scope="col">六</th></tr><tr><td class="CalOtherMonthDay" align="center">27</td><td class="CalOtherMonthDay" align="center">28</td><td class="CalOtherMonthDay" align="center">29</td><td class="CalOtherMonthDay" align="center">30</td><td class="CalOtherMonthDay" align="center">31</td><td align="center">1</td><td class="CalWeekendDay" align="center">2</td></tr><tr><td class="CalWeekendDay" align="center">3</td><td align="center">4</td><td align="center">5</td><td align="center">6</td><td align="center">7</td><td align="center">8</td><td class="CalWeekendDay" align="center">9</td></tr><tr><td class="CalWeekendDay" align="center">10</td><td class="CalTodayDay" align="center">11</td><td align="center">12</td><td align="center">13</td><td align="center">14</td><td align="center">15</td><td class="CalWeekendDay" align="center">16</td></tr><tr><td class="CalWeekendDay" align="center">17</td><td align="center">18</td><td align="center">19</td><td align="center">20</td><td align="center">21</td><td align="center">22</td><td class="CalWeekendDay" align="center">23</td></tr><tr><td class="CalWeekendDay" align="center">24</td><td align="center">25</td><td align="center">26</td><td align="center">27</td><td align="center">28</td><td class="CalOtherMonthDay" align="center">1</td><td class="CalOtherMonthDay" align="center">2</td></tr><tr><td class="CalOtherMonthDay" align="center">3</td><td class="CalOtherMonthDay" align="center">4</td><td class="CalOtherMonthDay" align="center">5</td><td class="CalOtherMonthDay" align="center">6</td><td class="CalOtherMonthDay" align="center">7</td><td class="CalOtherMonthDay" align="center">8</td><td class="CalOtherMonthDay" align="center">9</td></tr>
+</tbody></table></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block"></div><div id="sidebar_categories">
+<div id="sidebar_postcategory" class="catListPostCategory sidebar-block">
+<h3 class="catListTitle">随笔分类<span style="font-size:11px;font-weight:normal">(158)</span></h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_0_Link_0" href="https://www.cnblogs.com/qianguyihao/category/587732.html">Android开发(54)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_1" href="https://www.cnblogs.com/qianguyihao/category/638310.html">C/C++编程(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_2" href="https://www.cnblogs.com/qianguyihao/category/587723.html">Java(15)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_3" href="https://www.cnblogs.com/qianguyihao/category/634173.html">JavaWeb(10)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_4" href="https://www.cnblogs.com/qianguyihao/category/604950.html">Linux(5)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_5" href="https://www.cnblogs.com/qianguyihao/category/740114.html">前端(42)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_6" href="https://www.cnblogs.com/qianguyihao/category/774934.html">设计(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_7" href="https://www.cnblogs.com/qianguyihao/category/722932.html">数据结构(9)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_8" href="https://www.cnblogs.com/qianguyihao/category/636369.html">数据库(11)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_9" href="https://www.cnblogs.com/qianguyihao/category/825301.html">心智(8)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_postarchive" class="catListPostArchive sidebar-block">
+<h3 class="catListTitle">随笔档案<span style="font-size:11px;font-weight:normal">(156)</span></h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_1_Link_0" href="https://www.cnblogs.com/qianguyihao/archive/2018/12.html">2018年12月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_1" href="https://www.cnblogs.com/qianguyihao/archive/2018/09.html">2018年9月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_2" href="https://www.cnblogs.com/qianguyihao/archive/2018/07.html">2018年7月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_3" href="https://www.cnblogs.com/qianguyihao/archive/2018/06.html">2018年6月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_4" href="https://www.cnblogs.com/qianguyihao/archive/2018/04.html">2018年4月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_5" href="https://www.cnblogs.com/qianguyihao/archive/2018/03.html">2018年3月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_6" href="https://www.cnblogs.com/qianguyihao/archive/2018/02.html">2018年2月 (12)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_7" href="https://www.cnblogs.com/qianguyihao/archive/2018/01.html">2018年1月 (9)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_8" href="https://www.cnblogs.com/qianguyihao/archive/2017/08.html">2017年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_9" href="https://www.cnblogs.com/qianguyihao/archive/2017/07.html">2017年7月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_10" href="https://www.cnblogs.com/qianguyihao/archive/2016/09.html">2016年9月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_11" href="https://www.cnblogs.com/qianguyihao/archive/2016/08.html">2016年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_12" href="https://www.cnblogs.com/qianguyihao/archive/2016/05.html">2016年5月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_13" href="https://www.cnblogs.com/qianguyihao/archive/2016/04.html">2016年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_14" href="https://www.cnblogs.com/qianguyihao/archive/2016/03.html">2016年3月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_15" href="https://www.cnblogs.com/qianguyihao/archive/2016/02.html">2016年2月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_16" href="https://www.cnblogs.com/qianguyihao/archive/2016/01.html">2016年1月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_17" href="https://www.cnblogs.com/qianguyihao/archive/2015/11.html">2015年11月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_18" href="https://www.cnblogs.com/qianguyihao/archive/2015/10.html">2015年10月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_19" href="https://www.cnblogs.com/qianguyihao/archive/2015/09.html">2015年9月 (8)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_20" href="https://www.cnblogs.com/qianguyihao/archive/2015/08.html">2015年8月 (9)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_21" href="https://www.cnblogs.com/qianguyihao/archive/2015/07.html">2015年7月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_22" href="https://www.cnblogs.com/qianguyihao/archive/2015/06.html">2015年6月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_23" href="https://www.cnblogs.com/qianguyihao/archive/2015/05.html">2015年5月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_24" href="https://www.cnblogs.com/qianguyihao/archive/2015/04.html">2015年4月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_25" href="https://www.cnblogs.com/qianguyihao/archive/2015/03.html">2015年3月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_26" href="https://www.cnblogs.com/qianguyihao/archive/2014/12.html">2014年12月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_27" href="https://www.cnblogs.com/qianguyihao/archive/2014/11.html">2014年11月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_28" href="https://www.cnblogs.com/qianguyihao/archive/2014/10.html">2014年10月 (26)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_29" href="https://www.cnblogs.com/qianguyihao/archive/2014/09.html">2014年9月 (8)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_30" href="https://www.cnblogs.com/qianguyihao/archive/2014/08.html">2014年8月 (11)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_31" href="https://www.cnblogs.com/qianguyihao/archive/2014/07.html">2014年7月 (12)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_32" href="https://www.cnblogs.com/qianguyihao/archive/2014/06.html">2014年6月 (2)</a> </li>
+
+</ul>
+
+</div>
+
+</div><div id="sidebar_scorerank" class="sidebar-block">
+<div class="catListBlogRank">
+<h3 class="catListTitle">积分与排名</h3>
+<ul>
+	<li class="liScore">
+		积分 -	377883
+	</li>
+	<li class="liRank">
+		排名 -	532
+	</li>
+</ul>
+</div>
+
+
+</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
+<div class="catListComment">
+<h3 class="catListTitle">最新评论</h3>
+
+	<div id="RecentCommentsBlock"><ul>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/qianguyihao/p/8732781.html#4175905">1. Re:裸辞两个月，海投一个月，从Android转战Web前端的求职之路</a></li>
+        <li class="recent_comment_body">@名侦探柯东可以加一些技术交流群，里面的大佬应该不少。和他们多聊聊，熟悉起来，肯定能帮你内推。你平时多关注网上的信息和资源，总能发现一些交流群的。...</li>
+        <li class="recent_comment_author">--千古壹号</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/qianguyihao/p/8732781.html#4174396">2. Re:裸辞两个月，海投一个月，从Android转战Web前端的求职之路</a></li>
+        <li class="recent_comment_body">大公司没有同学，朋友的话，怎么内推呢？</li>
+        <li class="recent_comment_author">--名侦探柯东</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/qianguyihao/p/4965163.html#4169311">3. Re:阿里云+wordpress搭建个人博客网站【小白专用的图文教程】</a></li>
+        <li class="recent_comment_body"><a href="https://www.cnblogs.com/qianguyihao/p/4748313.html" target="_blank"></a><br>这也是我刚搭的博客，正在备案，有兴趣的可以来光顾一下哟；记录一些杂七杂八的日记，请多指教</li>
+        <li class="recent_comment_author">--我的世界只因有你</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/qianguyihao/p/4042303.html#4162123">4. Re:MySQL数据库学习笔记（六）----MySQL多表查询之外键、表连接、子查询、索引</a></li>
+        <li class="recent_comment_body">查询月薪比平均月薪高的员工的名字select avg(salary),namefrom employeegoup by dept_idhaving avg(salary)&lt;salary 不知道是不是这......</li>
+        <li class="recent_comment_author">--DMQ小七</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/qianguyihao/p/7256371.html#4161261">5. Re:CSS盒模型详解（图文教程）</a></li>
+        <li class="recent_comment_body">不错，讲的非常清晰</li>
+        <li class="recent_comment_author">--k5Asher</li>
+</ul>
+</div>
+</div>
+</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">阅读排行榜</h3>
+	<div id="TopViewPostsBlock"><ul><li><a href="https://www.cnblogs.com/qianguyihao/p/3788534.html">1. Java配置----JDK开发环境搭建及环境变量配置(618100)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4390905.html">2. 第一次使用Android Studio时你应该知道的一切配置(366858)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4456420.html">3. 第一次使用Android Studio时你应该知道的一切配置（三）：gradle项目构建(118648)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4965163.html">4. 阿里云+wordpress搭建个人博客网站【小白专用的图文教程】(88815)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4392611.html">5. 第一次使用Android Studio时你应该知道的一切配置（二）：新建一个属于自己的工程并安装Genymotion模拟器(76565)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4004983.html">6. Android系列之网络（一）----使用HttpClient发送HTTP请求（通过get方法获取数据）(63093)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4133292.html">7. Android系列之UI组件----Menu菜单(51451)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4585340.html">8. 在Android Studio中使用shareSDK进行社会化分享（图文教程）(51215)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4022844.html">9. 使用Android Studio搭建Android集成开发环境（图文教程）(36959)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4140877.html">10. JavaWeb学习之Servlet（四）----ServletConfig获取配置信息、ServletContext的应用(32265)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topcommentedposts" class="sidebar-block"><div id="topfeedback_posts_wrap">
+<div class="catListFeedback">
+<h3 class="catListTitle">评论排行榜</h3>
+	<div id="TopFeedbackPostsBlock"><ul><li><a href="https://www.cnblogs.com/qianguyihao/p/8732781.html">1. 裸辞两个月，海投一个月，从Android转战Web前端的求职之路(78)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4585340.html">2. 在Android Studio中使用shareSDK进行社会化分享（图文教程）(35)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4390905.html">3. 第一次使用Android Studio时你应该知道的一切配置(34)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4965163.html">4. 阿里云+wordpress搭建个人博客网站【小白专用的图文教程】(28)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/3788534.html">5. Java配置----JDK开发环境搭建及环境变量配置(21)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4046862.html">6. JavaWeb学习----JSP简介及入门（含Eclipse for Java EE及Tomcat的配置）(18)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4850684.html">7. HTML标签----图文详解(17)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4456420.html">8. 第一次使用Android Studio时你应该知道的一切配置（三）：gradle项目构建(15)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4855106.html">9. CSS样式----CSS属性：字体属性和文本属性（图文详解）(14)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4392611.html">10. 第一次使用Android Studio时你应该知道的一切配置（二）：新建一个属于自己的工程并安装Genymotion模拟器(13)</a></li></ul></div>
+</div>
+</div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright ©2019 千古壹号
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+
+<iframe id="google_osd_static_frame_2774745713461" name="google_osd_static_frame" style="display: none; width: 0px; height: 0px;" src="./Java虚拟机详解05----垃圾收集器及GC参数 - 千古壹号 - 博客园_files/saved_resource(1).html"></iframe></body></html>
