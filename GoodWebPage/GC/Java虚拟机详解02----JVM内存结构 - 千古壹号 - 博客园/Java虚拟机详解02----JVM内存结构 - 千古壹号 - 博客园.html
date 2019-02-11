@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<!-- saved from url=(0050)https://www.cnblogs.com/qianguyihao/p/4748392.html -->
+<html lang="zh-cn"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="origin">
+    <title>Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园</title>
+<meta property="og:description" content="主要内容如下：JVM启动流程JVM基本结构内存模型编译和解释运行的概念一、JVM启动流程：JVM启动时，是由java命令/javaw命令来启动的。二、JVM基本结构：JVM基本结构图：《深入理解Jav">
+    <link type="text/css" rel="stylesheet" href="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/blog-common.css">
+<link id="MainCss" type="text/css" rel="stylesheet" href="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/bundle-darkgreentrip.css">
+<link type="text/css" rel="stylesheet" href="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/188761.css">
+<link id="mobile-style" media="only screen and (max-width: 767px)" type="text/css" rel="stylesheet" href="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/bundle-darkgreentrip-mobile.css">
+    <link title="RSS" type="application/rss+xml" rel="alternate" href="https://www.cnblogs.com/qianguyihao/rss">
+    <link title="RSD" type="application/rsd+xml" rel="EditURI" href="https://www.cnblogs.com/qianguyihao/rsd.xml">
+<link type="application/wlwmanifest+xml" rel="wlwmanifest" href="https://www.cnblogs.com/qianguyihao/wlwmanifest.xml">
+    <script src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/amp4ads-host-v0.js.下载"></script><script src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/osd.js.下载"></script><script src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/pubads_impl_rendering_301.js.下载"></script><script async="" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/analytics.js.下载"></script><script type="text/javascript" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/encoder.js.下载"></script><script src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/jquery-2.2.0.min.js.下载"></script>
+    <script>var currentBlogId=188761;var currentBlogApp='qianguyihao',cb_enable_mathjax=false;var isLogined=false;</script>
+    <script src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/blog-common.js.下载" type="text/javascript"></script>
+<link rel="preload" href="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/f(1).txt" as="script"><script type="text/javascript" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/f(1).txt"></script><script src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/pubads_impl_301.js.下载" async=""></script><link rel="prefetch" href="https://tpc.googlesyndication.com/safeframe/1-0-31/html/container.html"></head>
+<body>
+<a name="top"></a>
+
+
+<!--done-->
+<div id="home">
+<div id="header">
+	<div id="blogTitle">
+	<a id="lnkBlogLogo" href="https://www.cnblogs.com/qianguyihao/"><img id="blogLogo" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/logo.gif" alt="返回主页"></a>			
+		
+<!--done-->
+<h1><a id="Header1_HeaderTitle" class="headermaintitle" href="https://www.cnblogs.com/qianguyihao/">千古壹号</a></h1>
+<h2>博客园分享技术，公众号分享代码之外的技能。微信公众号：千古壹号。</h2>
+
+
+
+		
+	</div><!--end: blogTitle 博客的标题和副标题 -->
+	<div id="navigator">
+		
+<ul id="navList">
+<li><a id="blog_nav_sitehome" class="menu" href="https://www.cnblogs.com/">博客园</a></li>
+<li><a id="blog_nav_myhome" class="menu" href="https://www.cnblogs.com/qianguyihao/">首页</a></li>
+<li><a id="blog_nav_newpost" class="menu" rel="nofollow" href="https://i.cnblogs.com/EditPosts.aspx?opt=1">新随笔</a></li>
+<li><a id="blog_nav_contact" class="menu" rel="nofollow" href="https://msg.cnblogs.com/send/%E5%8D%83%E5%8F%A4%E5%A3%B9%E5%8F%B7">联系</a></li>
+<li><a id="blog_nav_rss" class="menu" href="https://www.cnblogs.com/qianguyihao/rss">订阅</a>
+<!--<a id="blog_nav_rss_image" class="aHeaderXML" href="https://www.cnblogs.com/qianguyihao/rss"><img src="//www.cnblogs.com/images/xml.gif" alt="订阅" /></a>--></li>
+<li><a id="blog_nav_admin" class="menu" rel="nofollow" href="https://i.cnblogs.com/">管理</a></li>
+</ul>
+		<div class="blogStats">
+			
+			<div id="blog_stats">
+<span id="stats_post_count">随笔 - 157&nbsp; </span>
+<span id="stats_article_count">文章 - 0&nbsp; </span>
+<span id="stats-comment_count">评论 - 605</span>
+</div>
+			
+		</div><!--end: blogStats -->
+	</div><!--end: navigator 博客导航栏 -->
+</div><!--end: header 头部 -->
+
+<div id="main">
+	<div id="mainContent">
+	<div class="forFlow">
+		
+        <div id="post_detail">
+<!--done-->
+<div id="topics">
+	<div class="post">
+		<h1 class="postTitle">
+			<a id="cb_post_title_url" class="postTitle2" href="https://www.cnblogs.com/qianguyihao/p/4748392.html">Java虚拟机详解02----JVM内存结构</a>
+		</h1>
+		<div class="clear"></div>
+		<div class="postBody">
+			<div id="cnblogs_post_body" class="blogpost-body"><p>&nbsp;</p>
+<p>主要内容如下：</p>
+<ul>
+<li>JVM启动流程</li>
+<li>JVM基本结构</li>
+<li>内存模型</li>
+<li>编译和解释运行的概念</li>
+</ul>
+<p>&nbsp;</p>
+<p><strong>一、JVM启动流程：</strong></p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211701552859560.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="587f1e97-d4ed-4d7f-89c6-dabe944fed12" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/211701559568932.png" alt="587f1e97-d4ed-4d7f-89c6-dabe944fed12" width="747" height="253" border="0"></a></p>
+<p>JVM启动时，是由java命令/javaw命令来启动的。</p>
+<p><strong>二、JVM基本结构：</strong></p>
+<p><strong>JVM基本结构图：</strong></p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211701565193505.jpg"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="16865f32-a87b-4fee-9aed-a793016cf2a7" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/211701570812376.jpg" alt="16865f32-a87b-4fee-9aed-a793016cf2a7" width="602" height="329" border="0"></a></p>
+<p>《深入理解Java虚拟机（第二版）》中的描述是下面这个样子的：</p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211701576919962.jpg"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="96698196-0f6b-4ef6-9a20-85dd35d75f27" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/211701583165320.jpg" alt="96698196-0f6b-4ef6-9a20-85dd35d75f27" width="475" height="398" border="0"></a></p>
+<p>&nbsp;</p>
+<p><span style="color: #0000ff;"><strong>Java中的内存分配：</strong></span></p>
+<p>Java程序在运行时，需要在内存中的分配空间。<span style="color: #0000ff;"><strong>为了提高运算效率，就对数据进行了不同空间的划分</strong></span>，因为每一片区域都有特定的处理数据方式和内存管理方式。</p>
+<p>具体划分为如下<span style="color: #0000ff;"><strong>5个内存空间</strong></span>：（非常重要）</p>
+<ul>
+<li><span style="color: #0000ff;"><strong>栈</strong></span>：存放<span style="color: #0000ff;"><strong>局部变量</strong></span></li>
+<li><span style="color: #0000ff;"><strong>堆</strong></span>：存放所有<span style="color: #0000ff;"><strong>new出来的东西</strong></span></li>
+<li>方法区：被虚拟机加载的类信息、常量、静态常量等。</li>
+<li>程序计数器(和系统相关)</li>
+<li>本地方法栈</li>
+</ul>
+<p><strong>1、程序计数器:</strong></p>
+<blockquote>
+<p>每个线程拥有一个PC寄存器</p>
+<p>在线程创建时创建</p>
+<p>指向下一条指令的地址</p>
+<p>执行本地方法时，PC的值为undefined</p>
+</blockquote>
+<p><strong>2、方法区:</strong>&nbsp;</p>
+<blockquote>
+<p>保存装载的类信息</p>
+<p>　　类型的常量池</p>
+<p>　　字段，方法信息</p>
+<p>　　方法字节码</p>
+<p>通常和永久区(Perm)关联在一起</p>
+</blockquote>
+<p><strong style="line-height: 1.5;">3、堆内存:</strong></p>
+<blockquote>
+<p>和程序开发密切相关</p>
+<p>应用系统对象都保存在Java堆中</p>
+<p><span style="color: #0000ff;"><strong>所有线程共享Java堆</strong></span></p>
+<p>对分代GC来说，堆也是分代的</p>
+<p><span style="color: #0000ff;"><strong>GC管理的主要区域</strong></span></p>
+</blockquote>
+<p>现在的GC基本都采用分代收集算法，如果是分代的，那么堆也是分代的。如果堆是分代的，那堆空间应该是下面这个样子：</p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211701587536920.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="8d74ba35-9865-4434-8be5-73cec9e93295" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/211701590813721.png" alt="8d74ba35-9865-4434-8be5-73cec9e93295" width="415" height="131" border="0"></a></p>
+<p>上图是堆的基本结构，在之后的文章中再进行详解。</p>
+<p><strong>4、栈内存：</strong></p>
+<ul>
+<li><span style="color: #0000ff;"><strong>线程私有</strong></span>，生命周期和线程相同</li>
+<li>栈由一系列帧组成（因此Java栈也叫做帧栈）</li>
+<li>帧保存一个方法的局部变量、操作数栈、常量池指针</li>
+<li>每一次方法调用创建一个帧，并压栈</li>
+</ul>
+<p>解释：</p>
+<p>Java虚拟机栈描述的是<span style="color: #0000ff;">Java方法执行的内存模型</span>：<span style="color: #0000ff;"><strong>每个方法被调用的时候都会创建一个栈帧</strong></span>，用于存储局部变量表、操作栈、动态链接、方法出口等信息。<span style="color: #0000ff;">每一个方法被调用直至执行完成的过程就对应着一个栈帧在虚拟机中从入栈到出栈的过程</span>。</p>
+<p>在Java虚拟机规范中，对这个区域规定了两种异常情况：</p>
+<p>&nbsp;&nbsp;&nbsp; （1）如果线程请求的栈深度太深，超出了虚拟机所允许的深度，就会出现StackOverFlowError（比如无限递归。因为每一层栈帧都占用一定空间，而 Xss 规定了栈的最大空间，超出这个值就会报错）</p>
+<p>&nbsp;&nbsp;&nbsp; （2）虚拟机栈可以动态扩展，如果扩展到无法申请足够的内存空间，会出现OOM</p>
+<p>&nbsp;</p>
+<p><strong>4.1&nbsp; Java栈之</strong><span style="color: #0000ff;"><strong>局部变量表</strong></span><strong>：包含参数和局部变量</strong></p>
+<p>&nbsp;&nbsp;&nbsp; 局部变量表存放了基本数据类型、对象引用和returnAddress类型（指向一条字节码指令的地址）。其中64位长度的long和double类型的数据会占用2个局部变量空间（slot），其余数据类型只占用1个。局部变量表所需的内存空间在编译期间完成分配。</p>
+<p>例如，我写出下面这段代码：</p>
+<div class="cnblogs_code"><div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div>
+<pre><span style="color: #008080;"> 1</span> <span style="color: #000000;">package test03;
+</span><span style="color: #008080;"> 2</span> 
+<span style="color: #008080;"> 3</span> <span style="color: #008000;">/*</span><span style="color: #008000;">*
+</span><span style="color: #008080;"> 4</span> <span style="color: #008000;"> * Created by smyhvae on 2015/8/15.
+</span><span style="color: #008080;"> 5</span>  <span style="color: #008000;">*/</span>
+<span style="color: #008080;"> 6</span> <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">class</span><span style="color: #000000;"> StackDemo {
+</span><span style="color: #008080;"> 7</span>     
+<span style="color: #008080;"> 8</span>     <span style="color: #008000;">//</span><span style="color: #008000;">静态方法</span>
+<span style="color: #008080;"> 9</span>     <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">int</span> runStatic(<span style="color: #0000ff;">int</span> i, <span style="color: #0000ff;">long</span> l, <span style="color: #0000ff;">float</span> f, Object o, <span style="color: #0000ff;">byte</span><span style="color: #000000;"> b) {
+</span><span style="color: #008080;">10</span>         <span style="color: #0000ff;">return</span> <span style="color: #800080;">0</span><span style="color: #000000;">;
+</span><span style="color: #008080;">11</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">12</span> 
+<span style="color: #008080;">13</span>     <span style="color: #008000;">//</span><span style="color: #008000;">实例方法</span>
+<span style="color: #008080;">14</span>     <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">int</span> runInstance(<span style="color: #0000ff;">char</span> c, <span style="color: #0000ff;">short</span><span style="color: #000000;"> s, boolean b) {
+</span><span style="color: #008080;">15</span>         <span style="color: #0000ff;">return</span> <span style="color: #800080;">0</span><span style="color: #000000;">;
+</span><span style="color: #008080;">16</span> <span style="color: #000000;">    }
+</span><span style="color: #008080;">17</span> 
+<span style="color: #008080;">18</span> }</pre>
+<div class="cnblogs_code_toolbar"><span class="cnblogs_code_copy"><a href="javascript:void(0);" onclick="copyCnblogsCode(this)" title="复制代码"><img src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/copycode.gif" alt="复制代码"></a></span></div></div>
+<p>&nbsp;</p>
+<p><span style="line-height: 1.5;">上方代码中，静态方法有6个形参，实例方法有3个形参。其对应的局部变量表如下：</span></p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211701594726007.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="1272c229-ef70-4898-9ede-66828e6b84f7" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/211702000971366.png" alt="1272c229-ef70-4898-9ede-66828e6b84f7" width="239" height="350" border="0"></a></p>
+<p>上方表格中，静态方法和实例方法对应的局部变量表基本类似。但有以下区别：实例方法的表中，<span style="color: #0000ff;">第一个位置存放的是当前对象的引用</span>。</p>
+<p>&nbsp;</p>
+<p><strong>4、2&nbsp; Java栈之<span style="color: #0000ff;">函数调用组成栈帧</span>：</strong></p>
+<p>方法每次被调用的时候都会创建一个<strong><span style="color: #0000ff;">栈帧</span>，<span style="color: #0000ff;">例如下面这个方法</span>：</strong></p>
+<div class="cnblogs_code">
+<pre><span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">int</span> runStatic(<span style="color: #0000ff;">int</span> i,<span style="color: #0000ff;">long</span> l,<span style="color: #0000ff;">float</span>  f,Object o ,<span style="color: #0000ff;">byte</span><span style="color: #000000;"> b){
+       </span><span style="color: #0000ff;">return</span><span style="color: #000000;"> runStatic(i,l,f,o,b);
+}</span></pre>
+</div>
+<p>&nbsp;</p>
+<p><span style="line-height: 1.5;">当它每次被调用的时候，都会创建一个帧，方法调用结束后，帧出栈。如下图所示：</span></p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211702005196194.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="1244af96-c081-4059-98de-7881ec4c792e" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/211702009886036.png" alt="1244af96-c081-4059-98de-7881ec4c792e" width="502" height="502" border="0"></a></p>
+<p>&nbsp;</p>
+<p><strong style="line-height: 1.5;">4.3&nbsp; Java栈之操作数栈</strong></p>
+<p>Java没有寄存器，所有<span style="color: #0000ff;"><strong>参数传递都是使用操作数栈</strong></span></p>
+<p>例如下面这段代码：</p>
+<div class="cnblogs_code">
+<pre>    <span style="color: #0000ff;">public</span> <span style="color: #0000ff;">static</span> <span style="color: #0000ff;">int</span> add(<span style="color: #0000ff;">int</span> a,<span style="color: #0000ff;">int</span><span style="color: #000000;"> b){
+        </span><span style="color: #0000ff;">int</span> c=0<span style="color: #000000;">;
+        c</span>=a+<span style="color: #000000;">b;
+        </span><span style="color: #0000ff;">return</span><span style="color: #000000;"> c;
+    }</span></pre>
+</div>
+<p>&nbsp;</p>
+<p><span style="line-height: 1.5;">压栈的步骤如下：</span></p>
+<p>　　0:&nbsp;&nbsp; iconst_0 // 0压栈</p>
+<p>　　1:&nbsp;&nbsp; istore_2 // 弹出int，存放于局部变量2</p>
+<p>　　2:&nbsp;&nbsp; iload_0&nbsp; // 把局部变量0压栈</p>
+<p>　　3:&nbsp;&nbsp; iload_1 // 局部变量1压栈</p>
+<p>　　4:&nbsp;&nbsp; iadd&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; //弹出2个变量，求和，结果压栈</p>
+<p>　　5:&nbsp;&nbsp; istore_2 //弹出结果，放于局部变量2</p>
+<p>　　6:&nbsp;&nbsp; iload_2&nbsp; //局部变量2压栈</p>
+<p>　　7:&nbsp;&nbsp; ireturn&nbsp;&nbsp; //返回</p>
+<p>如果计算100+98的值，那么操作数栈的变化如下图所示：</p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211702016287165.jpg"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="35721707-fff7-4516-86a7-dda30320dc06" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/211702023006536.jpg" alt="35721707-fff7-4516-86a7-dda30320dc06" width="597" height="251" border="0"></a></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><strong>4.4&nbsp; Java栈之<span style="color: #0000ff;">栈上分配：</span></strong></p>
+<blockquote>
+<p>小对象（一般几十个bytes），在没有逃逸的情况下，可以直接分配在栈上</p>
+<p>直接分配在栈上，可以自动回收，减轻GC压力</p>
+<p>大对象或者逃逸对象无法栈上分配</p>
+</blockquote>
+<p><strong>栈、堆、方法区交互：</strong></p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211702028166095.jpg"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="7efdd9ad-03a3-41e8-9635-36d5506a23f9" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/211702038944525.jpg" alt="7efdd9ad-03a3-41e8-9635-36d5506a23f9" width="665" height="390" border="0"></a><a href="http://images0.cnblogs.com/blog/641601/201508/211702046758695.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="f29029fe-8cef-47ea-b091-e3f19d6a9801" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/211702053639539.png" alt="f29029fe-8cef-47ea-b091-e3f19d6a9801" width="412" height="498" border="0"></a></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p><strong>三、内存模型：</strong></p>
+<p>每一个线程有一个工作内存。工作内存和主存独立。工作内存存放主存中变量的值的拷贝。</p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211702057698597.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="7883501b-7e5c-4064-af0d-438a118acbf6" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/211702061752954.png" alt="7883501b-7e5c-4064-af0d-438a118acbf6" width="393" height="247" border="0"></a></p>
+<p>当数据从主内存复制到工作存储时，必须出现两个动作：第一，由主内存执行的读（read）操作；第二，由工作内存执行的相应的load操作；当数据从工作内存拷贝到主内存时，也出现两个操作：第一个，由工作内存执行的存储（store）操作；第二，由主内存执行的相应的写（write）操作。</p>
+<p>每一个操作都是原子的，即执行期间不会被中断</p>
+<p>对于普通变量，一个线程中更新的值，不能马上反应在其他变量中。如果需要在其他线程中立即可见，需要使用volatile关键字作为标识。</p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211702066751040.jpg"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="d481032e-ed23-46c2-9c5c-5f34e3193ef9" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/211702073313641.jpg" alt="d481032e-ed23-46c2-9c5c-5f34e3193ef9" width="567" height="505" border="0"></a></p>
+<p><strong>1、可见性：</strong></p>
+<p>　　一个线程修改了变量，其他线程可以立即知道</p>
+<p><strong>保证可见性的方法：</strong></p>
+<blockquote>
+<p>volatile</p>
+<p>synchronized （unlock之前，写变量值回主存）</p>
+<p>final(一旦初始化完成，其他线程就可见)</p>
+</blockquote>
+<p><strong>2、有序性：</strong></p>
+<p>　　在本线程内，操作都是有序的</p>
+<p>　　在线程外观察，操作都是无序的。（指令重排 或 主内存同步延时）</p>
+<p><strong>3、指令重排：</strong></p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211702077856713.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="142d481b-f4a3-4c23-b56d-cf3ec5b63a2e" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/211702082854799.png" alt="142d481b-f4a3-4c23-b56d-cf3ec5b63a2e" width="636" height="242" border="0"></a></p>
+<p>指令重排：破坏了线程间的有序性：</p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211702089109156.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; margin: 0px; display: inline; padding-right: 0px; border: 0px;" title="154748eb-cc14-48ee-b66f-cdcc26068cd1" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/211702094889500.png" alt="154748eb-cc14-48ee-b66f-cdcc26068cd1" width="856" height="370" border="0"></a></p>
+<p>&nbsp;</p>
+<p>&nbsp;</p>
+<p>指令重排：保证有序性的方法：</p>
+<p><a href="http://images0.cnblogs.com/blog/641601/201508/211702102225358.png"><img style="background-image: none; padding-top: 0px; padding-left: 0px; display: inline; padding-right: 0px; border: 0px;" title="e0bcca41-a6e1-4a5c-b723-e0d721875acc" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/211702108318243.png" alt="e0bcca41-a6e1-4a5c-b723-e0d721875acc" width="911" height="370" border="0"></a></p>
+<p>指令重排的基本原则：</p>
+<blockquote>
+<p>程序顺序原则：一个线程内保证语义的串行性</p>
+<p>volatile规则：volatile变量的写，先发生于读</p>
+<p>锁规则：解锁(unlock)必然发生在随后的加锁(lock)前</p>
+<p>传递性：A先于B，B先于C 那么A必然先于C</p>
+<p>线程的start方法先于它的每一个动作</p>
+<p>线程的所有操作先于线程的终结（Thread.join()）</p>
+<p>线程的中断（interrupt()）先于被中断线程的代码</p>
+<p>对象的构造函数执行结束先于finalize()方法</p>
+</blockquote>
+<p>&nbsp;</p>
+<p><strong>四、解释运行和编译运行的概念：</strong></p>
+<p><strong>解释运行：</strong></p>
+<blockquote>
+<p>解释执行以解释方式运行字节码</p>
+<p>解释执行的意思是：读一句执行一句</p>
+</blockquote>
+<p><strong>编译运行（JIT）：</strong></p>
+<blockquote>
+<p>将字节码编译成机器码</p>
+<p>直接执行机器码</p>
+<p>运行时编译</p>
+<p>编译后性能有数量级的提升</p>
+</blockquote>
+<p>编译运行的性能优于解释运行。</p>
+<p>&nbsp;</p></div><div id="MySignature"></div>
+<div class="clear"></div>
+<div id="blog_post_info_block">
+<div id="BlogPostCategory">分类: <a href="https://www.cnblogs.com/qianguyihao/category/587723.html" target="_blank">Java</a></div>
+<div id="EntryTag"></div>
+<div id="blog_post_info"><div id="green_channel">
+        <a href="javascript:void(0);" id="green_channel_digg" onclick="DiggIt(4748392,cb_blogId,1);green_channel_success(this,&#39;谢谢推荐！&#39;);">好文要顶</a>
+            <a id="green_channel_follow" onclick="follow(&#39;64313984-87f0-e311-8d02-90b11c0b17d6&#39;);" href="javascript:void(0);">关注我</a>
+    <a id="green_channel_favorite" onclick="AddToWz(cb_entryId);return false;" href="javascript:void(0);">收藏该文</a>
+    <a id="green_channel_weibo" href="javascript:void(0);" title="分享至新浪微博" onclick="ShareToTsina()"><img src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/icon_weibo_24.png" alt=""></a>
+    <a id="green_channel_wechat" href="javascript:void(0);" title="分享至微信" onclick="shareOnWechat()"><img src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/wechat.png" alt=""></a>
+</div>
+<div id="author_profile">
+    <div id="author_profile_info" class="author_profile_info">
+            <a href="http://home.cnblogs.com/u/qianguyihao/" target="_blank"><img src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/20151116171645.png" class="author_avatar" alt=""></a>
+        <div id="author_profile_detail" class="author_profile_info">
+            <a href="http://home.cnblogs.com/u/qianguyihao/">千古壹号</a><br>
+            <a href="http://home.cnblogs.com/u/qianguyihao/followees">关注 - 55</a><br>
+            <a href="http://home.cnblogs.com/u/qianguyihao/followers">粉丝 - 1459</a>
+        </div>
+    </div>
+    <div class="clear"></div>
+    <div id="author_profile_honor"></div>
+    <div id="author_profile_follow">
+                <a href="javascript:void(0);" onclick="follow(&#39;64313984-87f0-e311-8d02-90b11c0b17d6&#39;);return false;">+加关注</a>
+    </div>
+</div>
+<div id="div_digg">
+    <div class="diggit" onclick="votePost(4748392,&#39;Digg&#39;)">
+        <span class="diggnum" id="digg_count">5</span>
+    </div>
+    <div class="buryit" onclick="votePost(4748392,&#39;Bury&#39;)">
+        <span class="burynum" id="bury_count">0</span>
+    </div>
+    <div class="clear"></div>
+    <div class="diggword" id="digg_tips">
+    </div>
+</div>
+<script type="text/javascript">
+    currentDiggType = 0;
+</script></div>
+<div class="clear"></div>
+<div id="post_next_prev"><a href="https://www.cnblogs.com/qianguyihao/p/4748348.html" class="p_n_p_prefix">« </a> 上一篇：<a href="https://www.cnblogs.com/qianguyihao/p/4748348.html" title="发布于2015-08-15 16:54">Java虚拟机详解01----初识JVM</a><br><a href="https://www.cnblogs.com/qianguyihao/p/4736162.html" class="p_n_p_prefix">» </a> 下一篇：<a href="https://www.cnblogs.com/qianguyihao/p/4736162.html" title="发布于2015-08-17 12:58">Java虚拟机详解03----常用JVM配置参数</a><br></div>
+</div>
+
+
+		</div>
+		<div class="postDesc">posted @ <span id="post-date">2015-08-16 17:02</span> <a href="https://www.cnblogs.com/qianguyihao/">千古壹号</a> 阅读(<span id="post_view_count">9334</span>) 评论(<span id="post_comment_count">1</span>)  <a href="https://i.cnblogs.com/EditPosts.aspx?postid=4748392" rel="nofollow">编辑</a> <a href="https://www.cnblogs.com/qianguyihao/p/4748392.html#" onclick="AddToWz(4748392);return false;">收藏</a></div>
+	</div>
+	<script type="text/javascript">var allowComments=true,cb_blogId=188761,cb_entryId=4748392,cb_blogApp=currentBlogApp,cb_blogUserGuid='64313984-87f0-e311-8d02-90b11c0b17d6',cb_entryCreatedDate='2015/8/16 17:02:00';loadViewCount(cb_entryId);var cb_postType=1;var isMarkdown=false;</script>
+	
+</div><!--end: topics 文章、评论容器-->
+</div><a name="!comments"></a><div id="blog-comments-placeholder"><div id="comments_pager_top"></div>
+<br>
+<div class="feedback_area_title">评论列表</div>
+<div class="feedbackNoItems"></div>	
+
+		<div class="feedbackItem">
+			<div class="feedbackListSubtitle">
+				<div class="feedbackManage">
+					&nbsp;&nbsp;<span class="comment_actions"></span>
+				</div>
+				<a href="https://www.cnblogs.com/qianguyihao/p/4748392.html#3938941" class="layer">#1楼</a><a name="3938941" id="comment_anchor_3938941"></a><span id="comment-maxId" style="display:none;">3938941</span><span id="comment-maxDate" style="display:none;">2018/3/31 22:33:26</span>  <span class="comment_date">2018-03-31 22:33</span> <a id="a_comment_author_3938941" href="http://home.cnblogs.com/u/982925/" target="_blank">888001</a> <a href="http://msg.cnblogs.com/send/888001" title="发送站内短消息" class="sendMsg2This">&nbsp;</a>
+			</div>
+			<div class="feedbackCon">
+				<div id="comment_body_3938941" class="blog_comment_body">大神,受教了</div><div class="comment_vote"><a href="javascript:void(0);" class="comment_digg" onclick="return voteComment(3938941,&#39;Digg&#39;,this)">支持(0)</a><a href="javascript:void(0);" class="comment_bury" onclick="return voteComment(3938941,&#39;Bury&#39;,this)">反对(0)</a></div>
+			</div>
+		</div>
+	<div id="comments_pager_bottom"></div></div><script type="text/javascript">var commentManager = new blogCommentManager();commentManager.renderComments(0);</script>
+<div id="comment_form" class="commentform">
+<a name="commentform"></a>
+<div id="divCommentShow"></div>
+<div id="comment_nav"><span id="span_refresh_tips"></span><a href="javascript:void(0);" onclick="return RefreshCommentList();" id="lnk_RefreshComments" runat="server" clientidmode="Static">刷新评论</a><a href="https://www.cnblogs.com/qianguyihao/p/4748392.html#" onclick="return RefreshPage();">刷新页面</a><a href="https://www.cnblogs.com/qianguyihao/p/4748392.html#top">返回顶部</a></div>
+<div id="comment_form_container"><div class="login_tips">注册用户登录后才能发表评论，请 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return login(&#39;commentform&#39;);">登录</a> 或 <a rel="nofollow" href="javascript:void(0);" class="underline" onclick="return register();">注册</a>，<a href="http://www.cnblogs.com/">访问</a>网站首页。</div></div>
+<div class="ad_text_commentbox" id="ad_text_under_commentbox"></div>
+<div id="ad_t2"><a href="http://www.ucancode.com/index.htm" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-工控&#39;)">【推荐】超50万VC++源码: 大型组态工控、电力仿真CAD与GIS源码库！</a><br><a href="https://gitee.com/enterprises?from=bky-2" target="_blank" onclick="ga(&#39;send&#39;, &#39;event&#39;, &#39;Link&#39;, &#39;click&#39;, &#39;T2-gitee&#39;)">【推荐】专业便捷的企业级代码托管服务 - Gitee 码云</a><br></div>
+<div id="opt_under_post"></div>
+<script async="async" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/gpt.js.下载"></script>
+<script>
+  var googletag = googletag || {};
+  googletag.cmd = googletag.cmd || [];
+</script>
+<script>
+  googletag.cmd.push(function() {
+        googletag.defineSlot('/1090369/C1', [300, 250], 'div-gpt-ad-1546353474406-0').addService(googletag.pubads());
+        googletag.defineSlot('/1090369/C2', [468, 60], 'div-gpt-ad-1539008685004-0').addService(googletag.pubads());
+        googletag.pubads().enableSingleRequest();
+        googletag.enableServices();
+  });
+</script>
+<div id="cnblogs_c1" class="c_ad_block">
+    <div id="div-gpt-ad-1546353474406-0" style="height:250px; width:300px;" data-google-query-id="CNvbodfMsuACFdS0lgodHBgIVg"><div id="google_ads_iframe_/1090369/C1_0__container__" style="border: 0pt none; display: inline-block; width: 300px; height: 250px;"><iframe frameborder="0" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/container.html" id="google_ads_iframe_/1090369/C1_0" title="3rd party ad content" name="" scrolling="no" marginwidth="0" marginheight="0" width="300" height="250" data-is-safeframe="true" sandbox="allow-forms allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts allow-top-navigation-by-user-activation" data-google-container-id="1" style="border: 0px; vertical-align: bottom;" data-load-complete="true"></iframe></div></div>
+</div>
+<div id="under_post_news"><div class="itnews c_ad_block"><b>相关博文：</b><br>·  <a href="https://www.cnblogs.com/whgw/archive/2011/09/29/2194997.html" target="_blank" onclick="clickRecomItmem(undefined,&#39;undefined&#39;)">Java中堆内存和栈内存详解</a><br>·  <a href="https://www.cnblogs.com/java-my-life/archive/2012/08/01/2615221.html" target="_blank" onclick="clickRecomItmem(undefined,&#39;undefined&#39;)">JAVA虚拟机体系结构</a><br>·  <a href="https://www.cnblogs.com/redcreen/archive/2011/05/04/2036387.html" target="_blank" onclick="clickRecomItmem(undefined,&#39;undefined&#39;)">JVM系列一：JVM内存组成及分配</a><br>·  <a href="https://www.cnblogs.com/jack204/archive/2012/07/02/2572932.html" target="_blank" onclick="clickRecomItmem(undefined,&#39;undefined&#39;)">JVM（java 虚拟机）内存设置</a><br>·  <a href="https://www.cnblogs.com/zuoxiaolong/p/jvm1.html" target="_blank" onclick="clickRecomItmem(undefined,&#39;undefined&#39;)">JVM内存管理------JAVA语言的内存管理概述</a><br></div></div>
+<div id="cnblogs_c2" class="c_ad_block">
+    <div id="div-gpt-ad-1539008685004-0" style="height:60px; width:468px;" data-google-query-id="CObdodfMsuACFQe7lgodBRMLLQ"><div id="google_ads_iframe_/1090369/C2_0__container__" style="border: 0pt none;"><iframe id="google_ads_iframe_/1090369/C2_0" title="3rd party ad content" name="google_ads_iframe_/1090369/C2_0" width="468" height="60" scrolling="no" marginwidth="0" marginheight="0" frameborder="0" style="border: 0px; vertical-align: bottom;" data-google-container-id="2" data-load-complete="true" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/saved_resource.html"></iframe></div></div>
+</div>
+<div id="under_post_kb"><div class="itnews c_ad_block"><b>最新新闻</b>：<br> ·  <a href="https://news.cnblogs.com/n/619083/" target="_blank">QQ20岁：20年版本迭代只做一件事情</a><br> ·  <a href="https://news.cnblogs.com/n/619081/" target="_blank">前Google特斯拉Uber三巨头打造无人驾驶“极光之队”</a><br> ·  <a href="https://news.cnblogs.com/n/619080/" target="_blank">李彦宏：创业18年，始终保持警惕</a><br> ·  <a href="https://news.cnblogs.com/n/619079/" target="_blank">苹果降价短期销量增八成 被指饮鸩止渴伤害品牌</a><br> ·  <a href="https://news.cnblogs.com/n/619078/" target="_blank">被冒充洽谈5G基建业务 中国铁塔连发三声明斥“李鬼”</a><br>» <a href="http://news.cnblogs.com/" title="IT新闻" target="_blank">更多新闻...</a></div></div>
+<div id="HistoryToday" class="c_ad_block"></div>
+<script type="text/javascript">
+ if(enablePostBottom()) {
+    codeHighlight();
+    fixPostBody();
+    setTimeout(function () { incrementViewCount(cb_entryId); }, 50);
+    deliverT2();
+    deliverC1();
+    deliverC2();    
+    loadNewsAndKb();
+    loadBlogSignature();
+    LoadPostInfoBlock(cb_blogId, cb_entryId, cb_blogApp, cb_blogUserGuid);
+    GetPrevNextPost(cb_entryId, cb_blogId, cb_entryCreatedDate, cb_postType);
+    loadOptUnderPost();
+    GetHistoryToday(cb_blogId, cb_blogApp, cb_entryCreatedDate);  
+}
+</script>
+</div>
+
+    
+	</div><!--end: forFlow -->
+	</div><!--end: mainContent 主体内容容器-->
+
+	<div id="sideBar">
+		<div id="sideBarMain">
+			
+<!--done-->
+<div class="newsItem">
+<h3 class="catListTitle">公告</h3>
+	<div id="blog-news"><div id="profile_block">昵称：<a href="https://home.cnblogs.com/u/qianguyihao/">千古壹号</a><br>园龄：<a href="https://home.cnblogs.com/u/qianguyihao/" title="入园时间：2014-06-10">4年8个月</a><br>粉丝：<a href="https://home.cnblogs.com/u/qianguyihao/followers/">1459</a><br>关注：<a href="https://home.cnblogs.com/u/qianguyihao/followees/">55</a><div id="p_b_follow"><a href="javascript:void(0);" onclick="follow(&#39;64313984-87f0-e311-8d02-90b11c0b17d6&#39;)">+加关注</a></div><script>getFollowStatus('64313984-87f0-e311-8d02-90b11c0b17d6')</script></div></div><script type="text/javascript">loadBlogNews();</script>
+</div>
+
+			<div id="blog-calendar" style=""><table id="blogCalendar" class="Cal" cellspacing="0" cellpadding="0" title="Calendar">
+	<tbody><tr><td colspan="7"><table class="CalTitle" cellspacing="0">
+		<tbody><tr><td class="CalNextPrev"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2019/01/01&#39;);return false;">&lt;</a></td><td align="center">2019年2月</td><td class="CalNextPrev" align="right"><a href="javascript:void(0);" onclick="loadBlogCalendar(&#39;2019/03/01&#39;);return false;">&gt;</a></td></tr>
+	</tbody></table></td></tr><tr><th class="CalDayHeader" align="center" abbr="日" scope="col">日</th><th class="CalDayHeader" align="center" abbr="一" scope="col">一</th><th class="CalDayHeader" align="center" abbr="二" scope="col">二</th><th class="CalDayHeader" align="center" abbr="三" scope="col">三</th><th class="CalDayHeader" align="center" abbr="四" scope="col">四</th><th class="CalDayHeader" align="center" abbr="五" scope="col">五</th><th class="CalDayHeader" align="center" abbr="六" scope="col">六</th></tr><tr><td class="CalOtherMonthDay" align="center">27</td><td class="CalOtherMonthDay" align="center">28</td><td class="CalOtherMonthDay" align="center">29</td><td class="CalOtherMonthDay" align="center">30</td><td class="CalOtherMonthDay" align="center">31</td><td align="center">1</td><td class="CalWeekendDay" align="center">2</td></tr><tr><td class="CalWeekendDay" align="center">3</td><td align="center">4</td><td align="center">5</td><td align="center">6</td><td align="center">7</td><td align="center">8</td><td class="CalWeekendDay" align="center">9</td></tr><tr><td class="CalWeekendDay" align="center">10</td><td class="CalTodayDay" align="center">11</td><td align="center">12</td><td align="center">13</td><td align="center">14</td><td align="center">15</td><td class="CalWeekendDay" align="center">16</td></tr><tr><td class="CalWeekendDay" align="center">17</td><td align="center">18</td><td align="center">19</td><td align="center">20</td><td align="center">21</td><td align="center">22</td><td class="CalWeekendDay" align="center">23</td></tr><tr><td class="CalWeekendDay" align="center">24</td><td align="center">25</td><td align="center">26</td><td align="center">27</td><td align="center">28</td><td class="CalOtherMonthDay" align="center">1</td><td class="CalOtherMonthDay" align="center">2</td></tr><tr><td class="CalOtherMonthDay" align="center">3</td><td class="CalOtherMonthDay" align="center">4</td><td class="CalOtherMonthDay" align="center">5</td><td class="CalOtherMonthDay" align="center">6</td><td class="CalOtherMonthDay" align="center">7</td><td class="CalOtherMonthDay" align="center">8</td><td class="CalOtherMonthDay" align="center">9</td></tr>
+</tbody></table></div><script type="text/javascript">loadBlogDefaultCalendar();</script>
+			
+			<div id="leftcontentcontainer">
+				<div id="blog-sidecolumn"><div id="sidebar_search" class="sidebar-block"></div><div id="sidebar_categories">
+<div id="sidebar_postcategory" class="catListPostCategory sidebar-block">
+<h3 class="catListTitle">随笔分类<span style="font-size:11px;font-weight:normal">(158)</span></h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_0_Link_0" href="https://www.cnblogs.com/qianguyihao/category/587732.html">Android开发(54)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_1" href="https://www.cnblogs.com/qianguyihao/category/638310.html">C/C++编程(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_2" href="https://www.cnblogs.com/qianguyihao/category/587723.html">Java(15)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_3" href="https://www.cnblogs.com/qianguyihao/category/634173.html">JavaWeb(10)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_4" href="https://www.cnblogs.com/qianguyihao/category/604950.html">Linux(5)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_5" href="https://www.cnblogs.com/qianguyihao/category/740114.html">前端(42)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_6" href="https://www.cnblogs.com/qianguyihao/category/774934.html">设计(2)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_7" href="https://www.cnblogs.com/qianguyihao/category/722932.html">数据结构(9)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_8" href="https://www.cnblogs.com/qianguyihao/category/636369.html">数据库(11)</a> </li>
+
+<li><a id="CatList_LinkList_0_Link_9" href="https://www.cnblogs.com/qianguyihao/category/825301.html">心智(8)</a> </li>
+
+</ul>
+
+</div>
+
+<div id="sidebar_postarchive" class="catListPostArchive sidebar-block">
+<h3 class="catListTitle">随笔档案<span style="font-size:11px;font-weight:normal">(156)</span></h3>
+
+<ul>
+
+<li><a id="CatList_LinkList_1_Link_0" href="https://www.cnblogs.com/qianguyihao/archive/2018/12.html">2018年12月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_1" href="https://www.cnblogs.com/qianguyihao/archive/2018/09.html">2018年9月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_2" href="https://www.cnblogs.com/qianguyihao/archive/2018/07.html">2018年7月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_3" href="https://www.cnblogs.com/qianguyihao/archive/2018/06.html">2018年6月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_4" href="https://www.cnblogs.com/qianguyihao/archive/2018/04.html">2018年4月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_5" href="https://www.cnblogs.com/qianguyihao/archive/2018/03.html">2018年3月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_6" href="https://www.cnblogs.com/qianguyihao/archive/2018/02.html">2018年2月 (12)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_7" href="https://www.cnblogs.com/qianguyihao/archive/2018/01.html">2018年1月 (9)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_8" href="https://www.cnblogs.com/qianguyihao/archive/2017/08.html">2017年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_9" href="https://www.cnblogs.com/qianguyihao/archive/2017/07.html">2017年7月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_10" href="https://www.cnblogs.com/qianguyihao/archive/2016/09.html">2016年9月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_11" href="https://www.cnblogs.com/qianguyihao/archive/2016/08.html">2016年8月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_12" href="https://www.cnblogs.com/qianguyihao/archive/2016/05.html">2016年5月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_13" href="https://www.cnblogs.com/qianguyihao/archive/2016/04.html">2016年4月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_14" href="https://www.cnblogs.com/qianguyihao/archive/2016/03.html">2016年3月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_15" href="https://www.cnblogs.com/qianguyihao/archive/2016/02.html">2016年2月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_16" href="https://www.cnblogs.com/qianguyihao/archive/2016/01.html">2016年1月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_17" href="https://www.cnblogs.com/qianguyihao/archive/2015/11.html">2015年11月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_18" href="https://www.cnblogs.com/qianguyihao/archive/2015/10.html">2015年10月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_19" href="https://www.cnblogs.com/qianguyihao/archive/2015/09.html">2015年9月 (8)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_20" href="https://www.cnblogs.com/qianguyihao/archive/2015/08.html">2015年8月 (9)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_21" href="https://www.cnblogs.com/qianguyihao/archive/2015/07.html">2015年7月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_22" href="https://www.cnblogs.com/qianguyihao/archive/2015/06.html">2015年6月 (1)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_23" href="https://www.cnblogs.com/qianguyihao/archive/2015/05.html">2015年5月 (3)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_24" href="https://www.cnblogs.com/qianguyihao/archive/2015/04.html">2015年4月 (4)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_25" href="https://www.cnblogs.com/qianguyihao/archive/2015/03.html">2015年3月 (2)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_26" href="https://www.cnblogs.com/qianguyihao/archive/2014/12.html">2014年12月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_27" href="https://www.cnblogs.com/qianguyihao/archive/2014/11.html">2014年11月 (7)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_28" href="https://www.cnblogs.com/qianguyihao/archive/2014/10.html">2014年10月 (26)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_29" href="https://www.cnblogs.com/qianguyihao/archive/2014/09.html">2014年9月 (8)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_30" href="https://www.cnblogs.com/qianguyihao/archive/2014/08.html">2014年8月 (11)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_31" href="https://www.cnblogs.com/qianguyihao/archive/2014/07.html">2014年7月 (12)</a> </li>
+
+<li><a id="CatList_LinkList_1_Link_32" href="https://www.cnblogs.com/qianguyihao/archive/2014/06.html">2014年6月 (2)</a> </li>
+
+</ul>
+
+</div>
+
+</div><div id="sidebar_scorerank" class="sidebar-block">
+<div class="catListBlogRank">
+<h3 class="catListTitle">积分与排名</h3>
+<ul>
+	<li class="liScore">
+		积分 -	377883
+	</li>
+	<li class="liRank">
+		排名 -	532
+	</li>
+</ul>
+</div>
+
+
+</div><div id="sidebar_recentcomments" class="sidebar-block"><div id="recent_comments_wrap">
+<div class="catListComment">
+<h3 class="catListTitle">最新评论</h3>
+
+	<div id="RecentCommentsBlock"><ul>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/qianguyihao/p/8732781.html#4175905">1. Re:裸辞两个月，海投一个月，从Android转战Web前端的求职之路</a></li>
+        <li class="recent_comment_body">@名侦探柯东可以加一些技术交流群，里面的大佬应该不少。和他们多聊聊，熟悉起来，肯定能帮你内推。你平时多关注网上的信息和资源，总能发现一些交流群的。...</li>
+        <li class="recent_comment_author">--千古壹号</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/qianguyihao/p/8732781.html#4174396">2. Re:裸辞两个月，海投一个月，从Android转战Web前端的求职之路</a></li>
+        <li class="recent_comment_body">大公司没有同学，朋友的话，怎么内推呢？</li>
+        <li class="recent_comment_author">--名侦探柯东</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/qianguyihao/p/4965163.html#4169311">3. Re:阿里云+wordpress搭建个人博客网站【小白专用的图文教程】</a></li>
+        <li class="recent_comment_body"><a href="https://www.cnblogs.com/qianguyihao/p/4748392.html" target="_blank"></a><br>这也是我刚搭的博客，正在备案，有兴趣的可以来光顾一下哟；记录一些杂七杂八的日记，请多指教</li>
+        <li class="recent_comment_author">--我的世界只因有你</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/qianguyihao/p/4042303.html#4162123">4. Re:MySQL数据库学习笔记（六）----MySQL多表查询之外键、表连接、子查询、索引</a></li>
+        <li class="recent_comment_body">查询月薪比平均月薪高的员工的名字select avg(salary),namefrom employeegoup by dept_idhaving avg(salary)&lt;salary 不知道是不是这......</li>
+        <li class="recent_comment_author">--DMQ小七</li>
+        <li class="recent_comment_title"><a href="https://www.cnblogs.com/qianguyihao/p/7256371.html#4161261">5. Re:CSS盒模型详解（图文教程）</a></li>
+        <li class="recent_comment_body">不错，讲的非常清晰</li>
+        <li class="recent_comment_author">--k5Asher</li>
+</ul>
+</div>
+</div>
+</div></div><div id="sidebar_topviewedposts" class="sidebar-block"><div id="topview_posts_wrap">
+<div class="catListView">
+<h3 class="catListTitle">阅读排行榜</h3>
+	<div id="TopViewPostsBlock"><ul><li><a href="https://www.cnblogs.com/qianguyihao/p/3788534.html">1. Java配置----JDK开发环境搭建及环境变量配置(618159)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4390905.html">2. 第一次使用Android Studio时你应该知道的一切配置(366875)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4456420.html">3. 第一次使用Android Studio时你应该知道的一切配置（三）：gradle项目构建(118655)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4965163.html">4. 阿里云+wordpress搭建个人博客网站【小白专用的图文教程】(88818)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4392611.html">5. 第一次使用Android Studio时你应该知道的一切配置（二）：新建一个属于自己的工程并安装Genymotion模拟器(76566)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4004983.html">6. Android系列之网络（一）----使用HttpClient发送HTTP请求（通过get方法获取数据）(63094)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4133292.html">7. Android系列之UI组件----Menu菜单(51453)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4585340.html">8. 在Android Studio中使用shareSDK进行社会化分享（图文教程）(51215)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4022844.html">9. 使用Android Studio搭建Android集成开发环境（图文教程）(36959)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4140877.html">10. JavaWeb学习之Servlet（四）----ServletConfig获取配置信息、ServletContext的应用(32265)</a></li></ul></div>
+</div>
+</div></div><div id="sidebar_topcommentedposts" class="sidebar-block"><div id="topfeedback_posts_wrap">
+<div class="catListFeedback">
+<h3 class="catListTitle">评论排行榜</h3>
+	<div id="TopFeedbackPostsBlock"><ul><li><a href="https://www.cnblogs.com/qianguyihao/p/8732781.html">1. 裸辞两个月，海投一个月，从Android转战Web前端的求职之路(78)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4585340.html">2. 在Android Studio中使用shareSDK进行社会化分享（图文教程）(35)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4390905.html">3. 第一次使用Android Studio时你应该知道的一切配置(34)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4965163.html">4. 阿里云+wordpress搭建个人博客网站【小白专用的图文教程】(28)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/3788534.html">5. Java配置----JDK开发环境搭建及环境变量配置(21)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4046862.html">6. JavaWeb学习----JSP简介及入门（含Eclipse for Java EE及Tomcat的配置）(18)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4850684.html">7. HTML标签----图文详解(17)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4456420.html">8. 第一次使用Android Studio时你应该知道的一切配置（三）：gradle项目构建(15)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4855106.html">9. CSS样式----CSS属性：字体属性和文本属性（图文详解）(14)</a></li><li><a href="https://www.cnblogs.com/qianguyihao/p/4392611.html">10. 第一次使用Android Studio时你应该知道的一切配置（二）：新建一个属于自己的工程并安装Genymotion模拟器(13)</a></li></ul></div>
+</div>
+</div></div></div><script type="text/javascript">loadBlogSideColumn();</script>
+			</div>
+			
+		</div><!--end: sideBarMain -->
+	</div><!--end: sideBar 侧边栏容器 -->
+	<div class="clear"></div>
+	</div><!--end: main -->
+	<div class="clear"></div>
+	<div id="footer">
+		
+<!--done-->
+Copyright ©2019 千古壹号
+	</div><!--end: footer -->
+</div><!--end: home 自定义的最大容器 -->
+
+
+
+<iframe id="google_osd_static_frame_28943284935" name="google_osd_static_frame" style="display: none; width: 0px; height: 0px;" src="./Java虚拟机详解02----JVM内存结构 - 千古壹号 - 博客园_files/saved_resource(1).html"></iframe></body></html>
