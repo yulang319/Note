@@ -2,9 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c373b855-1afe-4365-b79e-8f876972aade" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/../../../../../Java.docx" beforeDir="false" afterPath="$PROJECT_DIR$/../../../../../Java.docx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/MyProxy.iml" beforeDir="false" afterPath="$PROJECT_DIR$/MyProxy.iml" afterDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -17,10 +15,11 @@
     <session id="427223880">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="1" />
+          <entry key="project.closed" value="3" />
+          <entry key="project.open.time.37" value="1" />
           <entry key="project.open.time.41" value="1" />
           <entry key="project.open.time.6" value="1" />
-          <entry key="project.opened" value="2" />
+          <entry key="project.opened" value="3" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.open">
@@ -79,9 +78,9 @@
     <detection-done>true</detection-done>
     <sorting>DEFINITION_ORDER</sorting>
   </component>
-  <component name="ProjectFrameBounds" extendedState="7">
-    <option name="x" value="22" />
-    <option name="y" value="26" />
+  <component name="ProjectFrameBounds" extendedState="6">
+    <option name="x" value="94" />
+    <option name="y" value="278" />
     <option name="width" value="1041" />
     <option name="height" value="551" />
   </component>
@@ -94,7 +93,6 @@
     </navigator>
     <panes>
       <pane id="PackagesPane" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -118,24 +116,11 @@
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="lirj" type="462c0819:PsiDirectoryNode" />
             </path>
-            <path>
-              <item name="MyProxy" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MyProxy" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="lirj" type="462c0819:PsiDirectoryNode" />
-              <item name="dyncproxy" type="462c0819:PsiDirectoryNode" />
-            </path>
-            <path>
-              <item name="MyProxy" type="b2602c69:ProjectViewProjectNode" />
-              <item name="MyProxy" type="462c0819:PsiDirectoryNode" />
-              <item name="src" type="462c0819:PsiDirectoryNode" />
-              <item name="lirj" type="462c0819:PsiDirectoryNode" />
-              <item name="proxy" type="462c0819:PsiDirectoryNode" />
-            </path>
           </expand>
           <select />
         </subPane>
       </pane>
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -218,6 +203,7 @@
       <updated>1554531961694</updated>
       <workItem from="1554531964876" duration="3146000" />
       <workItem from="1554685820278" duration="1629000" />
+      <workItem from="1554970141906" duration="53000" />
     </task>
     <servers />
   </component>
@@ -230,13 +216,13 @@
     </history-entry>
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="4775000" />
+    <option name="totallyTimeSpent" value="4828000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-8" y="-8" width="1382" height="754" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25340393" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25718608" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Image Layers" order="2" />
       <window_info id="Designer" order="3" />
